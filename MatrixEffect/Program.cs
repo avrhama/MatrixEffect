@@ -733,7 +733,7 @@ namespace MatrixEffect
                  }
              }*/
             return lettersStructs;
-            // PixelLetter a = new PixelLetter();
+            
         }
     }
 }
