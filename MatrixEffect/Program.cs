@@ -18,14 +18,14 @@ namespace MatrixEffect
             Console.WindowWidth = Console.LargestWindowWidth;
             Console.WindowHeight = Console.LargestWindowHeight;
             p.start();
-        
-            
+
+
 
             Console.ReadLine();
 
 
         }
-       
+
         public void start()
         {
             lettersStructs = createLetters();
@@ -37,6 +37,7 @@ namespace MatrixEffect
             Console.Clear();
             pixelLetterList = new List<PixelLetter>();
             pixelLetterListMatch = new Dictionary<char, List<RainDrop.RainLetter>>();
+            pixelLetterListMatchCompleted = new Dictionary<char, List<RainDrop.RainLetter>>();
             for (int i = 0; i < name.Length; i++)
             {
                 if (name[i] >= 65 && name[i] <= 90)
@@ -45,111 +46,39 @@ namespace MatrixEffect
                     for (int row = 0; row < letterStruct.Length; row++)
                     {
                         byte[] rowArr = letterStruct[row];
-                       /* for (int col = 0; col < rowArr.Length; col++)
+                        for (int col = 0; col < rowArr.Length; col++)
                         {
                             char letter = ' ';
-                            Console.SetCursorPosition(col + offsetX, row + offsetY);
+                            /* Console.SetCursorPosition(col + offsetX, row + offsetY);
+                             if (letterStruct[row][col] == 1)
+                             {
+                                 int a = rand.Next(0, 2) == 0 ? 'A' : 'a';
+                                 letter = (char)(a + rand.Next(0, 26));
+                                 //letter = name[i];
+                             }
+
+                             Console.Write(letter);*/
                             if (letterStruct[row][col] == 1)
                             {
-                                int a = rand.Next(0, 2) == 0 ? 'A' : 'a';
-                                letter = (char)(a + rand.Next(0, 26));
-                                //letter = name[i];
+                                lettersSum++;
                             }
-
-                            Console.Write(letter);
-                        }*/
+                        }
                     }
                     PixelLetter pl = new PixelLetter(name[i], new Point(offsetX, offsetY), new Size(letterStruct[0].Length, letterStruct.Length));
                     pixelLetterList.Add(pl);
                     offsetX += 1 + letterStruct[0].Length;
                 }
             }
-           rainDropList = new List<RainDrop>();
-             maxRainDrops = 15;
-            Timer t = new Timer(TimerCallback, null, 0, 100);
+            rainDropList = new List<RainDrop>();
+            maxRainDrops = 10;
+            Timer t = new Timer(TimerCallback, null, 0, 30);
             Console.ReadLine();
             return;
-           
+
             do
             {
 
                 int count = rand.Next(2, 4);
-                for (int i = 0; i < count && rainDropList.Count < maxRainDrops; i++)
-                {
-                    RainDrop rd = createRainDrop();
-                    rainDropList.Add(rd);
-                }
-                List<RainDrop> rainDropListRemove = new List<RainDrop>();
-
-                for (int i = 0; i < rainDropList.Count; i++)
-                {
-                    RainDrop rd = rainDropList[i];
-                    if (drawRainDrop(rd))
-                        rainDropListRemove.Add(rd);
-                }
-                foreach (RainDrop rd in rainDropListRemove)
-                    rainDropList.Remove(rd);
-                rainDropListRemove.Clear();
-
-                foreach (char letter in pixelLetterListMatch.Keys)
-                {
-                    List<RainDrop.RainLetter> list = pixelLetterListMatch[letter];
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        RainDrop.RainLetter rl = list[i];
-                        if (rl.letter != letter)
-                        {
-                            int a = rand.Next(0, 2) == 0 ? 'A' : 'a';
-                            char nextLetter = (char)(a + rand.Next(0, 26));
-                            rl.letter = nextLetter;
-                            list[i] = rl;
-                        }
-                        else
-                        {
-                            rl.color = ConsoleColor.White;
-                        }
-                        Console.SetCursorPosition(rl.pos.X, rl.pos.Y);
-                            
-                              
-                            Console.ForegroundColor = rl.color;
-                            Console.Write(rl.letter);
-                           
-                        
-
-                    }
-                }
-
-                rainDropListRemove.Clear();
-
-                //  Thread.Sleep(10);
-            } while (true);
-
-
-
-
-
-
-            Console.SetCursorPosition(0, 0);
-            Console.WriteLine("Hello World!");
-            Console.ReadKey();
-        }
-        List<RainDrop> rainDropList;
-        int maxRainDrops;
-        object locker = new object();
-        bool timerTicked = false;
-        public  void TimerCallback(Object o)
-        {
-            
-            lock (locker)
-            {
-                if (timerTicked == true)
-                    return;
-                timerTicked = true;
-            }
-            // Display the date/time when this method got called.
-            // Console.WriteLine("In TimerCallback: " + DateTime.Now);
-            // Force a garbage collection to occur for this demo.
-            int count = rand.Next(2, 4);
                 for (int i = 0; i < count && rainDropList.Count < maxRainDrops; i++)
                 {
                     RainDrop rd = createRainDrop();
@@ -196,7 +125,113 @@ namespace MatrixEffect
                 }
 
                 rainDropListRemove.Clear();
-                GC.Collect();
+
+                //  Thread.Sleep(10);
+            } while (true);
+
+
+
+
+
+
+            Console.SetCursorPosition(0, 0);
+            Console.WriteLine("Hello World!");
+            Console.ReadKey();
+        }
+        List<RainDrop> rainDropList;
+        int maxRainDrops;
+        object locker = new object();
+        bool timerTicked = false;
+        bool keepRain = true;
+        int lettersSum = 0;
+        public void TimerCallback(Object o)
+        {
+
+            lock (locker)
+            {
+                if (timerTicked == true)
+                    return;
+                timerTicked = true;
+            }
+            // Display the date/time when this method got called.
+            // Console.WriteLine("In TimerCallback: " + DateTime.Now);
+            // Force a garbage collection to occur for this demo.
+            int count = rand.Next(2, 4);
+            for (int i = 0; i < count && rainDropList.Count < maxRainDrops && keepRain; i++)
+            {
+                RainDrop rd = createRainDrop();
+                rainDropList.Add(rd);
+            }
+           /* List<RainDrop> rainDropListRemove = new List<RainDrop>();
+
+            for (int i = 0; i < rainDropList.Count; i++)
+            {
+                RainDrop rd = rainDropList[i];
+                if (drawRainDrop(rd))
+                    rainDropListRemove.Add(rd);
+            }
+            foreach (RainDrop rd in rainDropListRemove)
+                rainDropList.Remove(rd);
+            rainDropListRemove.Clear();*/
+
+            foreach (char letter in pixelLetterListMatch.Keys)
+            {
+                List<RainDrop.RainLetter> list = pixelLetterListMatch[letter];
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    RainDrop.RainLetter rl = list[i];
+                    if (rl.letter != letter)
+                    {
+                        int a = rand.Next(0, 2) == 0 ? 'A' : 'a';
+                        char nextLetter = (char)(a + rand.Next(0, 26));
+                        rl.letter = nextLetter;
+                        list[i] = rl;
+                        Console.SetCursorPosition(rl.pos.X, rl.pos.Y);
+                        Console.ForegroundColor = rl.color;
+                        Console.Write(rl.letter);
+                    }
+                    else
+                    {
+
+                        rl.color = ConsoleColor.White;
+                        if (!pixelLetterListMatchCompleted.ContainsKey(letter))
+                            pixelLetterListMatchCompleted[letter] = new List<RainDrop.RainLetter>();
+                        pixelLetterListMatchCompleted[letter].Add(rl);
+                        list.RemoveAt(i);
+                        i--;
+                        lettersSum--;
+                        keepRain = lettersSum != 0;
+                    }
+
+                }  
+            }
+            foreach (char letter in pixelLetterListMatchCompleted.Keys)
+            {
+               List<RainDrop.RainLetter> list = pixelLetterListMatchCompleted[letter];
+                for (int i = 0; i < list.Count; i++)
+                {
+                    RainDrop.RainLetter rl = list[i];
+                    Console.SetCursorPosition(rl.pos.X, rl.pos.Y);
+                    Console.ForegroundColor = rl.color;
+                    Console.Write(rl.letter);
+
+
+                }
+            }
+
+            List<RainDrop> rainDropListRemove = new List<RainDrop>();
+
+            for (int i = 0; i < rainDropList.Count; i++)
+            {
+                RainDrop rd = rainDropList[i];
+                if (drawRainDrop(rd))
+                    rainDropListRemove.Add(rd);
+            }
+            foreach (RainDrop rd in rainDropListRemove)
+                rainDropList.Remove(rd);
+            rainDropListRemove.Clear();
+            GC.Collect();
             lock (locker)
             {
                 timerTicked = false;
@@ -208,7 +243,7 @@ namespace MatrixEffect
             //checks theres no overlapping when rainDropCreated[avoiding the case when dropSpeed is the same].
             int size = rand.Next(7, 10);
             //int x = rand.Next(0, Console.WindowWidth);
-            int x = rand.Next(pixelLetterList[0].pos.X-2, pixelLetterList[pixelLetterList.Count - 1].pos.X + pixelLetterList[pixelLetterList.Count - 1].size.Width+2);
+            int x = rand.Next(pixelLetterList[0].pos.X - 2, pixelLetterList[pixelLetterList.Count - 1].pos.X + pixelLetterList[pixelLetterList.Count - 1].size.Width + 2);
             // int y = rand.Next(0, Console.WindowHeight);
             int coin = rand.Next(1, 7);
             // int y = rand.Next(10, Console.WindowHeight);
@@ -220,7 +255,7 @@ namespace MatrixEffect
             }
             else if (coin % 6 == 0)
             {
-               // j = 2;
+                // j = 2;
             }
 
             int y = rand.Next(j * thirdScreen, (j + 1) * thirdScreen);
@@ -236,30 +271,33 @@ namespace MatrixEffect
         }
         List<PixelLetter> pixelLetterList;
         Dictionary<char, List<RainDrop.RainLetter>> pixelLetterListMatch;
+        Dictionary<char, List<RainDrop.RainLetter>> pixelLetterListMatchCompleted;
         byte[][][] lettersStructs;
         public bool drawRainDrop(RainDrop rd)
         {
             while (!rd.completeCycle && rd.changed)
             {
                 RainDrop.RainLetter rl = rd.getLetter();
-           
+
                 Console.SetCursorPosition(rl.pos.X, rl.pos.Y);
                 Console.ForegroundColor = rl.color;
                 Console.Write(rl.letter);
                 //checks if letter colides with name.
                 foreach (PixelLetter pl in pixelLetterList)
                 {
-                
+
                     if ((rl.pos.X >= pl.pos.X) && rl.pos.X < (pl.pos.X + pl.size.Width))
                     {
-                        if (((rl.pos.Y >= pl.pos.Y) && rl.pos.Y < (pl.pos.Y + pl.size.Height))){
+                        if (((rl.pos.Y >= pl.pos.Y) && rl.pos.Y < (pl.pos.Y + pl.size.Height)))
+                        {
                             if (lettersStructs[pl.letter - 65][rl.pos.Y - pl.pos.Y][rl.pos.X - pl.pos.X] == 0)
                                 break;
-                            if (!pixelLetterListMatch.ContainsKey(pl.letter))
+                            if (!pixelLetterListMatch.ContainsKey(pl.letter) )
                                 pixelLetterListMatch[pl.letter] = new List<RainDrop.RainLetter>();
 
                             if (!pixelLetterListMatch[pl.letter].Contains(rl))
                             {
+                                if(!pixelLetterListMatchCompleted.ContainsKey(pl.letter)|| !pixelLetterListMatchCompleted[pl.letter].Contains(rl))
                                 pixelLetterListMatch[pl.letter].Add(rl);
                             }
                             break;
@@ -337,17 +375,17 @@ namespace MatrixEffect
                 if ((fallingLength % dropSpeed) == 0)
                 {
                     changed = true;
-                  
+
                     completeCycle = false;
                     headPos.Y++;
                     //if curr dropRain head reached the bottom look proceed the next letter.
                     if (Console.WindowHeight <= headPos.Y)
                     {
                         headLetterIndex = headPos.Y - Console.WindowHeight + 1;
-                       currLetterIndex = headLetterIndex;
-                       
+                        currLetterIndex = headLetterIndex;
+
                     }
-                    if (headPos.Y >= Console.WindowHeight + (size-1))
+                    if (headPos.Y >= Console.WindowHeight + (size - 1))
                         return true;
                     else
                         return false;
@@ -369,9 +407,9 @@ namespace MatrixEffect
                     if (obj.GetType() != this.GetType())
                         return false;
                     RainLetter other = (RainLetter)obj;
-                
-                   
-                    return (pos.X == other.pos.X) && (pos.Y == other.pos.Y); 
+
+
+                    return (pos.X == other.pos.X) && (pos.Y == other.pos.Y);
                 }
             }
         }
@@ -386,7 +424,7 @@ namespace MatrixEffect
                 this.pos = pos;
                 this.size = size;
             }
-           
+
         }
         public byte[][][] createLetters()
         {
