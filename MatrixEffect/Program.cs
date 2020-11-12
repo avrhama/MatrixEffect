@@ -126,7 +126,7 @@ namespace MatrixEffect
             while (true)
             {
                 TimerCallback(null);
-                Thread.Sleep(10);
+                Thread.Sleep(50);
               /*  if (maxCounter == 10)
                 {
                     maxCounter = 0;
@@ -139,6 +139,7 @@ namespace MatrixEffect
             Console.Clear();
             keepRain = true;
             lettersSum = 0;
+            
             start();
             
         }
@@ -167,11 +168,10 @@ namespace MatrixEffect
                 rainDropList.Add(rd);
             }
 
-
+            
             foreach (char letter in pixelLetterListMatch.Keys)
             {
                 List<RainDrop.RainLetter> list = pixelLetterListMatch[letter];
-
                 for (int i = 0; i < list.Count; i++)
                 {
                     RainDrop.RainLetter rl = list[i];
@@ -199,10 +199,12 @@ namespace MatrixEffect
                         lettersSum--;
                         keepRain = lettersSum != 0;
                     }
-
+                   
                 }
+               
             }
-           
+         
+                
             foreach (char letter in pixelLetterListMatchCompleted.Keys)
             {
                 List<RainDrop.RainLetter> list = pixelLetterListMatchCompleted[letter];
@@ -216,6 +218,7 @@ namespace MatrixEffect
                     lettersBoardColor[rl.pos.Y][rl.pos.X] = ConsoleColor.White;
 
                 }
+
             }
 
 
@@ -233,7 +236,7 @@ namespace MatrixEffect
                 rainDropList.Remove(rd);
             rainDropListRemove.Clear();
 
-            drawLettersVer2();
+            drawLettersVer1();
             //GC.Collect();
             /*  lock (locker)
               {
@@ -466,7 +469,12 @@ namespace MatrixEffect
                             if (!pixelLetterListMatch[pl.letter].Contains(rl))
                             {
                                 if (!pixelLetterListMatchCompleted.ContainsKey(pl.letter) || !pixelLetterListMatchCompleted[pl.letter].Contains(rl))
-                                    pixelLetterListMatch[pl.letter].Add(rl);
+                                    {
+                                        pixelLetterListMatch[pl.letter].Add(rl);
+                                        
+                                    }
+                                   
+
                             }
                         }
                     }
